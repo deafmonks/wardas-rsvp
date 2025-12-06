@@ -29,7 +29,7 @@
 
     /* Optional: ensure any specially-targeted image (hands) matches the cover sizing */
     img.hands-match { width: 100%; height: 100% !important; object-fit: cover; display: block; }
-    /* Middle carousel: hide non-active slides and add a small gap between stacked slides */
+    /* Middle carousel: show only active slide by default; gap when stacked on mobile */
     .mini-carousel.middle-carousel .slide { display: block; }
     .mini-carousel.middle-carousel .slide:not(.active) { display: none; }
     .mini-carousel.middle-carousel .slide + .slide { margin-top: 8px; }
@@ -41,12 +41,12 @@
       .mini-carousel.right-carousel { order: 3; }
       .mini-carousel.middle-carousel { order: 2; }
       .mini-carousel:first-of-type { order: 1; }
-      /* swap which image shows in the left carousel on mobile */
-      .desktop-only { display: none !important; }
-      .mobile-only { display: block !important; }
+      /* On small screens stack middle carousel slides vertically and show both (no animation) */
+      .mini-carousel.middle-carousel .slides { display: flex; flex-direction: column; }
+      .mini-carousel.middle-carousel .slide { position: static !important; opacity: 1 !important; display: block !important; }
+      /* ensure only the right carousel auto-animates on mobile */
     }
-
-    /* default desktop/mobile visibility for the left carousel images */
+    /* default desktop visibility rules for left image (keep bride visible) */
     .desktop-only { display: block; }
     .mobile-only { display: none; }
   </style>
@@ -61,23 +61,22 @@
         <div class="mini-carousel" style="width:250px;">
           <div class="slides">
             <div class="slide active">
-              <img class="desktop-only" src="bride.JPG" alt="Bride" style="width:100%;height:auto;display:block;object-fit:cover;" />
-              <img class="mobile-only" src="groom.jpg" alt="Groom" style="width:100%;height:auto;display:none;object-fit:cover;" />
+              <img src="bride.JPG" alt="Bride" style="width:100%;height:auto;display:block;object-fit:cover;" />
             </div>
           </div>
         </div>
 
         <div class="mini-carousel middle-carousel" style="width:250px;">
           <div class="slides">
-            <div class="slide active"><img src="IMG3.jpg" alt="Bride and groom" style="width:100%;height:100%;object-fit:cover;"/></div><br>
+            <div class="slide active"><img src="IMG3.jpg" alt="Bride and groom" style="width:100%;height:100%;object-fit:cover;"/></div>
             <div class="slide"><img class="hands-match" src="hands.jpg" alt="Bride and groom" style="width:100%;height:100%;object-fit:cover;"/></div>
           </div>
         </div>
 
         <div class="mini-carousel right-carousel" style="width:250px;">
           <div class="slides">
-            <div class="slide active"><img src="saad1.jpg" alt="saad" style="width:100%;height:auto;"/></div>
-            <div class="slide"><img src="warda1.jpg" alt="warda" style="width:100%;height:auto;"/></div>
+            <div class="slide active"><img src="warda1.jpg" alt="warda" style="width:100%;height:auto;"/></div>
+            <div class="slide"><img src="saad1.jpg" alt="saad" style="width:100%;height:auto;"/></div>
             <div class="slide"><img src="4ofthem.jpg" alt="group" style="width:100%;height:auto;"/></div>
           </div>
         </div>
@@ -214,10 +213,13 @@
       if (nextBtn) nextBtn.addEventListener('click', goNext);
       if (prevBtn) prevBtn.addEventListener('click', goPrev);
 
-      if (slides.length > 1) {
-        // auto-advance each mini-carousel
-        setInterval(goNext, 4000 + Math.floor(Math.random() * 2000));
-      }
+        if (slides.length > 1) {
+          // Auto-advance logic: on mobile only the right-carousel auto-advances; on larger screens allow all to auto-advance
+          const isMobile = () => (window.innerWidth || document.documentElement.clientWidth) <= 600;
+          if (!isMobile() || carousel.classList.contains('right-carousel')) {
+            setInterval(goNext, 4000 + Math.floor(Math.random() * 2000));
+          }
+        }
     });
 
     // Sync all mini-carousel heights to the tallest rendered slide image so visuals match
@@ -228,6 +230,8 @@
       // Find the tallest rendered image height among the first slide img of each carousel
       let maxH = 0;
       carousels.forEach((c) => {
+          // Skip middle carousel on small screens so it can stack its slides vertically
+          if ((window.innerWidth || document.documentElement.clientWidth) <= 600 && c.classList.contains('middle-carousel')) return;
         const img = c.querySelector('.slide img');
         if (img) {
           // offsetHeight is the rendered height
@@ -242,18 +246,24 @@
         return;
       }
 
-      // Apply the max height to every carousel's slides container
+      // Apply the max height to every carousel's slides container (except middle on mobile)
       carousels.forEach((c) => {
         const slides = c.querySelector('.slides');
-        if (slides) slides.style.height = `${maxH}px`;
+        if (!slides) return;
+        if ((window.innerWidth || document.documentElement.clientWidth) <= 600 && c.classList.contains('middle-carousel')) {
+          slides.style.height = 'auto';
+        } else {
+          slides.style.height = `${maxH}px`;
+        }
       });
     }
 
     window.addEventListener('load', () => { syncCarouselHeights(); setTimeout(syncCarouselHeights, 300); });
     window.addEventListener('resize', () => { setTimeout(syncCarouselHeights, 120); });
 
-    // Ensure the middle carousel (IMG3 / hands) uses IMG3's rendered height so hands matches IMG3
+    // Ensure the middle carousel uses IMG3's rendered height on larger screens so hands matches IMG3
     function fixMiddleCarouselHeight() {
+      if ((window.innerWidth || document.documentElement.clientWidth) <= 600) return; // don't force height on small screens
       const middle = document.querySelector('.mini-carousel.middle-carousel');
       if (!middle) return;
       const img = middle.querySelector('.slides .slide.active img') || middle.querySelector('.slides img');
