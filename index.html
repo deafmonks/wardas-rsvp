@@ -57,6 +57,13 @@
 
       /* ensure non-active middle slides are visible on mobile (stacked) */
       .mini-carousel.middle-carousel .slide:not(.active) { display: block !important; }
+
+      /* Override inline widths so flex sizing takes effect on mobile and allow the right carousel to remain visible */
+      .carousel-grid { align-items: stretch; }
+      .mini-carousel.middle-carousel,
+      .mini-carousel.right-carousel { width: auto !important; max-width: none !important; min-width: 0 !important; }
+      /* allow right carousel contents to be visible and scale to the available height */
+      .mini-carousel.right-carousel { overflow: visible !important; }
     }
     /* default desktop visibility rules for left image (keep bride visible) */
     .desktop-only { display: block; }
