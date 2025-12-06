@@ -37,7 +37,9 @@
        These rules only target the hero area to avoid changing invite-area images */
      .hero .mini-carousel.middle-carousel { max-width: 280px; width: 100%; box-sizing: border-box; }
      .hero .mini-carousel.middle-carousel .slides { display: flex; flex-direction: column; }
-     .hero .mini-carousel.middle-carousel .slide { display: block !important; position: relative !important; }
+    .hero .mini-carousel.middle-carousel .slide { display: block !important; position: relative !important; }
+    /* Ensure both middle slides are always visible on desktop (ignore .active toggling) */
+    .hero .mini-carousel.middle-carousel .slide:not(.active) { display: block !important; }
      .hero .mini-carousel.middle-carousel .slide img { width: 100% !important; height: auto !important; border-radius: 8px !important; object-fit: cover !important; display: block !important; }
 
      /* HERO RIGHT: ensure right-carousel images are the same visual size as couple-photos
