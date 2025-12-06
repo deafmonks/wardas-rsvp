@@ -38,9 +38,10 @@
     @media (max-width: 600px) {
       .carousel-grid { gap: 8px; }
       .mini-carousel { flex: 1 1 45%; width: 45%; max-width: 45%; }
-      .mini-carousel.right-carousel { order: 3; }
-      .mini-carousel.middle-carousel { order: 2; }
-      .mini-carousel:first-of-type { order: 1; }
+      .mini-carousel.right-carousel { order: 2; }
+      .mini-carousel.middle-carousel { order: 1; }
+      /* hide the leftmost (bride) carousel on mobile */
+      .mini-carousel:first-of-type { display: none !important; }
       /* On small screens stack middle carousel slides vertically and show both (no animation) */
       .mini-carousel.middle-carousel .slides { display: flex; flex-direction: column; }
       .mini-carousel.middle-carousel .slide { position: static !important; opacity: 1 !important; display: block !important; }
