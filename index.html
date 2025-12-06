@@ -13,9 +13,6 @@
     /* Prevent horizontal page scrolling */
     html, body { overflow-x: hidden; }
 
-    /* Make hero carousels align with the invitation card width */
-    .carousel-grid { max-width: 540px; width: 100%; margin: 0 auto; }
-
     /* Animate only the right-most mini-carousel (fade effect) */
     .mini-carousel.right-carousel { overflow: hidden; }
     .mini-carousel.right-carousel .slides { position: relative; height: auto; }
@@ -32,45 +29,23 @@
 
     /* Optional: ensure any specially-targeted image (hands) matches the cover sizing */
     img.hands-match { width: 100%; height: 100% !important; object-fit: cover; display: block; }
-    /* Middle carousel: show slides as static pictures (no animation) */
+    /* Middle carousel: show only active slide by default; gap when stacked on mobile */
     .mini-carousel.middle-carousel .slide { display: block; }
+    .mini-carousel.middle-carousel .slide:not(.active) { display: none; }
     .mini-carousel.middle-carousel .slide + .slide { margin-top: 8px; }
 
     /* Small-screen adjustments so carousels fit and the right carousel is visible */
     @media (max-width: 600px) {
-      .carousel-grid { gap: 8px; display:flex; justify-content:flex-start; flex-wrap:nowrap; }
-      /* Middle on left, animated right on right; hide the original left carousel */
+      .carousel-grid { gap: 8px; }
+      .mini-carousel { flex: 1 1 45%; width: 45%; max-width: 45%; }
+      .mini-carousel.right-carousel { order: 2; }
+      .mini-carousel.middle-carousel { order: 1; }
+      /* hide the leftmost (bride) carousel on mobile */
       .mini-carousel:first-of-type { display: none !important; }
-      /* Layout: middle images stacked on left, animated right carousel on right */
-      .mini-carousel.middle-carousel { order: 1; flex: 0 0 60%; width: 60%; max-width: 60%; box-sizing:border-box; margin-right: 6px; display:flex; }
-      .mini-carousel.right-carousel { order: 2; flex: 0 0 38%; width: 38%; max-width: 38%; box-sizing:border-box; display:flex; }
-
-      /* Stack middle carousel slides vertically and make each take equal height */
-      .mini-carousel.middle-carousel .slides { display: flex; flex-direction: column; height: 100% !important; }
-      .mini-carousel.middle-carousel .slide { position: static !important; opacity: 1 !important; display: block !important; flex: 1 1 50%; margin: 0; }
-      .mini-carousel.middle-carousel .slide img { height: 100% !important; width: 100% !important; object-fit: cover; display:block; border-radius:8px; }
-
-      /* Right carousel fills the right column and its slides scale to match total height */
-      .mini-carousel.right-carousel .slides { display:flex; flex-direction:column; height: 100% !important; position: static !important; }
-      .mini-carousel.right-carousel .slide { position: static !important; flex: 1 1 auto; display:block !important; margin:0 0 8px 0; opacity: 1 !important; }
-      .mini-carousel.right-carousel .slide img { height: 100% !important; width: 100% !important; object-fit: cover; display:block; border-radius:8px; }
-
-      /* Ensure absolute-positioned rules from desktop are disabled on mobile so slides stack properly */
-      .mini-carousel.right-carousel .slide.active { z-index: auto !important; }
-
-      /* ensure non-active middle slides are visible on mobile (stacked) */
-      .mini-carousel.middle-carousel .slide:not(.active) { display: block !important; }
-
-      /* Override inline widths so flex sizing takes effect on mobile and allow the right carousel to remain visible */
-      .carousel-grid { align-items: stretch; }
-      .mini-carousel.middle-carousel,
-      .mini-carousel.right-carousel { width: auto !important; max-width: none !important; min-width: 0 !important; }
-      /* allow right carousel contents to be visible and scale to the available height */
-      .mini-carousel.right-carousel { overflow: visible !important; }
-
-      /* In case the desktop CSS set slides to absolute, reset slide positioning for all carousels on mobile */
-      .mini-carousel .slides { position: static !important; }
-      .mini-carousel .slide { position: static !important; }
+      /* On small screens stack middle carousel slides vertically and show both (no animation) */
+      .mini-carousel.middle-carousel .slides { display: flex; flex-direction: column; }
+      .mini-carousel.middle-carousel .slide { position: static !important; opacity: 1 !important; display: block !important; }
+      /* ensure only the right carousel auto-animates on mobile */
     }
     /* default desktop visibility rules for left image (keep bride visible) */
     .desktop-only { display: block; }
@@ -240,8 +215,9 @@
       if (prevBtn) prevBtn.addEventListener('click', goPrev);
 
         if (slides.length > 1) {
-          // Only the right-most carousel should auto-advance (no other carousels should animate)
-          if (carousel.classList.contains('right-carousel')) {
+          // Auto-advance logic: on mobile only the right-carousel auto-advances; on larger screens allow all to auto-advance
+          const isMobile = () => (window.innerWidth || document.documentElement.clientWidth) <= 600;
+          if (!isMobile() || carousel.classList.contains('right-carousel')) {
             setInterval(goNext, 4000 + Math.floor(Math.random() * 2000));
           }
         }
@@ -281,8 +257,6 @@
           slides.style.height = `${maxH}px`;
         }
       });
-      // After syncing heights, ensure middle column matches right column on mobile
-      if (typeof matchMiddleToRightHeight === 'function') matchMiddleToRightHeight();
     }
 
     window.addEventListener('load', () => { syncCarouselHeights(); setTimeout(syncCarouselHeights, 300); });
@@ -297,86 +271,12 @@
       const slides = middle.querySelector('.slides');
       if (!img || !slides) return;
       const h = img.offsetHeight || img.clientHeight || 0;
-      if (h > 0) {
-        slides.style.height = `${h}px`;
-        // ensure each middle slide and its image match the same height
-        const slideElems = Array.from(slides.querySelectorAll('.slide'));
-        slideElems.forEach((s) => {
-          s.style.height = `${h}px`;
-          const i = s.querySelector('img');
-          if (i) i.style.height = `${h}px`;
-        });
-      } else setTimeout(fixMiddleCarouselHeight, 150);
+      if (h > 0) slides.style.height = `${h}px`;
+      else setTimeout(fixMiddleCarouselHeight, 150);
     }
 
     window.addEventListener('load', () => { fixMiddleCarouselHeight(); setTimeout(fixMiddleCarouselHeight, 350); });
     window.addEventListener('resize', () => { setTimeout(fixMiddleCarouselHeight, 150); });
-
-    // On mobile, size IMG3 and hands so they match the height of the animated right carousel
-    function matchMiddleToRightHeight() {
-      const isMobile = (window.innerWidth || document.documentElement.clientWidth) <= 600;
-      const middleSlides = document.querySelector('.mini-carousel.middle-carousel .slides');
-      const rightSlides = document.querySelector('.mini-carousel.right-carousel .slides');
-      if (!isMobile || !middleSlides || !rightSlides) {
-        // reset any inline heights when not mobile
-        if (middleSlides) { middleSlides.style.height = ''; const imgs = middleSlides.querySelectorAll('img'); imgs.forEach(img => img.style.height = ''); }
-        return;
-      }
-
-      // measure right height (it should already be set by syncCarouselHeights)
-      const rightH = rightSlides.offsetHeight || rightSlides.clientHeight || 0;
-      if (!rightH) return setTimeout(matchMiddleToRightHeight, 120);
-
-      // set middle container to match right's height and split evenly between the two stacked images
-      middleSlides.style.height = `${rightH}px`;
-      const middleImgs = Array.from(middleSlides.querySelectorAll('.slide'));
-      const eachH = Math.floor(rightH / Math.max(1, middleImgs.length));
-      middleImgs.forEach((s) => {
-        s.style.height = `${eachH}px`;
-        const img = s.querySelector('img');
-        if (img) img.style.height = `${eachH}px`;
-      });
-    }
-
-    window.addEventListener('load', () => { matchMiddleToRightHeight(); setTimeout(matchMiddleToRightHeight, 400); });
-    window.addEventListener('resize', () => { setTimeout(matchMiddleToRightHeight, 160); });
-
-    // Make left and right carousels match the combined height of middle (IMG3 + hands)
-    function alignSidesToMiddle() {
-      const middleSlides = document.querySelector('.mini-carousel.middle-carousel .slides');
-      if (!middleSlides) return;
-
-      // compute total middle height (sum of slide heights when stacked, or slides container height)
-      let totalMiddleH = 0;
-      const middleSlideElems = Array.from(middleSlides.querySelectorAll('.slide'));
-      if (middleSlideElems.length > 1 && getComputedStyle(middleSlides).flexDirection === 'column') {
-        middleSlideElems.forEach(s => {
-          totalMiddleH += s.offsetHeight || s.clientHeight || 0;
-        });
-      } else {
-        totalMiddleH = middleSlides.offsetHeight || middleSlides.clientHeight || 0;
-      }
-
-      if (!totalMiddleH) return;
-
-      // apply to left and right slides containers
-      const leftSlides = document.querySelectorAll('.mini-carousel:not(.middle-carousel):not(.right-carousel) .slides');
-      const rightSlides = document.querySelectorAll('.mini-carousel.right-carousel .slides');
-
-      leftSlides.forEach(s => {
-        s.style.height = `${totalMiddleH}px`;
-        const imgs = s.querySelectorAll('img');
-        imgs.forEach(i => i.style.height = `${totalMiddleH}px`);
-      });
-      rightSlides.forEach(s => {
-        s.style.height = `${totalMiddleH}px`;
-        const imgs = s.querySelectorAll('img');
-        imgs.forEach(i => i.style.height = `${totalMiddleH}px`);
-      });
-    }
-
-    window.addEventListener('load', () => { alignSidesToMiddle(); setTimeout(alignSidesToMiddle, 500); });
-    window.addEventListener('resize', () => { setTimeout(alignSidesToMiddle, 180); });
 
     // ------------ RSVP + GOOGLE SHEETS ------------
     // Vercel function URL (deployed)
