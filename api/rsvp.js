@@ -37,11 +37,15 @@ module.exports = async (req, res) => {
     const sheets = google.sheets({ version: 'v4', auth: jwt });
 
     const body = req.body || {};
-    // Timestamp as day/month only (DD/MM)
+    // Timestamp as day/month and time (DD/MM HH:MM)
     const now = new Date();
     const day = String(now.getDate()).padStart(2, '0');
     const month = String(now.getMonth() + 1).padStart(2, '0');
-    const timestamp = `${day}/${month}`;
+    const h24 = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const ampm = h24 >= 12 ? 'PM' : 'AM';
+    const hour12 = h24 % 12 === 0 ? 12 : h24 % 12;
+    const timestamp = `${day}/${month} ${hour12}:${minutes} ${ampm}`;
 
     const firstName = (body.firstName || '').trim();
     const lastName = (body.lastName || '').trim();
@@ -92,10 +96,11 @@ module.exports = async (req, res) => {
 
     if (rows.length === 0) return res.status(400).json({ error: 'No names provided' });
 
+    // Use RAW so the API writes the exact string and Sheets won't convert it to a serial number
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
       range: `${SHEET_NAME}!A:H`,
-      valueInputOption: 'USER_ENTERED',
+      valueInputOption: 'RAW',
       insertDataOption: 'INSERT_ROWS',
       resource: { values: rows },
     });
