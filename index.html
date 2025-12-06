@@ -41,15 +41,22 @@
       .carousel-grid { gap: 8px; display:flex; justify-content:flex-start; flex-wrap:nowrap; }
       /* Middle on left, animated right on right; hide the original left carousel */
       .mini-carousel:first-of-type { display: none !important; }
-      .mini-carousel.middle-carousel { order: 1; flex: 0 0 60%; width: 60%; max-width: 60%; box-sizing:border-box; margin-right: 6px; }
-      .mini-carousel.right-carousel { order: 2; flex: 0 0 38%; width: 38%; max-width: 38%; box-sizing:border-box; }
-      /* On small screens stack middle carousel slides vertically and show both (no animation) */
-      .mini-carousel.middle-carousel .slides { display: flex; flex-direction: column; height: auto !important; }
-      .mini-carousel.middle-carousel .slide { position: static !important; opacity: 1 !important; display: block !important; height: auto !important; }
-      .mini-carousel.middle-carousel .slide img { height: 100% !important; width: 100% !important; object-fit: cover; }
-      /* ensure non-active middle slides are visible on mobile */
+      /* Layout: middle images stacked on left, animated right carousel on right */
+      .mini-carousel.middle-carousel { order: 1; flex: 0 0 60%; width: 60%; max-width: 60%; box-sizing:border-box; margin-right: 6px; display:flex; }
+      .mini-carousel.right-carousel { order: 2; flex: 0 0 38%; width: 38%; max-width: 38%; box-sizing:border-box; display:flex; }
+
+      /* Stack middle carousel slides vertically and make each take equal height */
+      .mini-carousel.middle-carousel .slides { display: flex; flex-direction: column; height: 100% !important; }
+      .mini-carousel.middle-carousel .slide { position: static !important; opacity: 1 !important; display: block !important; flex: 1 1 50%; margin: 0; }
+      .mini-carousel.middle-carousel .slide img { height: 100% !important; width: 100% !important; object-fit: cover; display:block; border-radius:8px; }
+
+      /* Right carousel fills the right column and its slides scale to match total height */
+      .mini-carousel.right-carousel .slides { display:flex; flex-direction:column; height: 100% !important; }
+      .mini-carousel.right-carousel .slide { flex: 1 1 auto; display:block !important; margin:0 0 8px 0; }
+      .mini-carousel.right-carousel .slide img { height: 100% !important; width: 100% !important; object-fit: cover; display:block; border-radius:8px; }
+
+      /* ensure non-active middle slides are visible on mobile (stacked) */
       .mini-carousel.middle-carousel .slide:not(.active) { display: block !important; }
-      /* ensure only the right carousel auto-animates on mobile */
     }
     /* default desktop visibility rules for left image (keep bride visible) */
     .desktop-only { display: block; }
