@@ -36,8 +36,9 @@
 
     /* Small-screen adjustments so carousels fit and the right carousel is visible */
     @media (max-width: 600px) {
-      .carousel-grid { gap: 8px; }
-      .mini-carousel { flex: 1 1 45%; width: 45%; max-width: 45%; }
+      .carousel-grid { gap: 8px; display:flex; justify-content:space-between; }
+      /* force middle and right to sit side-by-side and take equal height */
+      .mini-carousel { flex: 0 0 48%; width: 48%; max-width: 48%; }
       .mini-carousel.right-carousel { order: 2; }
       .mini-carousel.middle-carousel { order: 1; }
       /* hide the leftmost (bride) carousel on mobile */
@@ -277,6 +278,35 @@
 
     window.addEventListener('load', () => { fixMiddleCarouselHeight(); setTimeout(fixMiddleCarouselHeight, 350); });
     window.addEventListener('resize', () => { setTimeout(fixMiddleCarouselHeight, 150); });
+
+    // On mobile, size IMG3 and hands so they match the height of the animated right carousel
+    function matchMiddleToRightHeight() {
+      const isMobile = (window.innerWidth || document.documentElement.clientWidth) <= 600;
+      const middleSlides = document.querySelector('.mini-carousel.middle-carousel .slides');
+      const rightSlides = document.querySelector('.mini-carousel.right-carousel .slides');
+      if (!isMobile || !middleSlides || !rightSlides) {
+        // reset any inline heights when not mobile
+        if (middleSlides) { middleSlides.style.height = ''; const imgs = middleSlides.querySelectorAll('img'); imgs.forEach(img => img.style.height = ''); }
+        return;
+      }
+
+      // measure right height (it should already be set by syncCarouselHeights)
+      const rightH = rightSlides.offsetHeight || rightSlides.clientHeight || 0;
+      if (!rightH) return setTimeout(matchMiddleToRightHeight, 120);
+
+      // set middle container to match right's height and split evenly between the two stacked images
+      middleSlides.style.height = `${rightH}px`;
+      const middleImgs = Array.from(middleSlides.querySelectorAll('.slide'));
+      const eachH = Math.floor(rightH / Math.max(1, middleImgs.length));
+      middleImgs.forEach((s) => {
+        s.style.height = `${eachH}px`;
+        const img = s.querySelector('img');
+        if (img) img.style.height = `${eachH}px`;
+      });
+    }
+
+    window.addEventListener('load', () => { matchMiddleToRightHeight(); setTimeout(matchMiddleToRightHeight, 400); });
+    window.addEventListener('resize', () => { setTimeout(matchMiddleToRightHeight, 160); });
 
     // ------------ RSVP + GOOGLE SHEETS ------------
     // Vercel function URL (deployed)
