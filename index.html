@@ -40,6 +40,14 @@
      .hero .mini-carousel.middle-carousel .slide { display: block !important; position: relative !important; }
      .hero .mini-carousel.middle-carousel .slide img { width: 100% !important; height: auto !important; border-radius: 8px !important; object-fit: cover !important; display: block !important; }
 
+     /* HERO RIGHT: ensure right-carousel images are the same visual size as couple-photos
+       Make the right carousel container match the middle's max-width so images line up */
+     .hero .mini-carousel.right-carousel { max-width: 280px; width: 100%; box-sizing: border-box; }
+     .hero .mini-carousel.right-carousel .slides { position: static !important; height: auto !important; }
+     .hero .mini-carousel.right-carousel .slide { position: static !important; display: none !important; }
+     .hero .mini-carousel.right-carousel .slide.active { display: block !important; }
+     .hero .mini-carousel.right-carousel .slide img { width: 100% !important; height: auto !important; border-radius: 8px !important; object-fit: cover !important; display:block !important; }
+
     /* Small-screen adjustments so carousels fit and the right carousel is visible */
     @media (max-width: 600px) {
       .carousel-grid { gap: 8px; }
