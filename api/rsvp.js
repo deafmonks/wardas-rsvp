@@ -85,7 +85,8 @@ module.exports = async (req, res) => {
         if (!gFirst || !gLast) {
           return res.status(400).json({ error: `Guest ${i} requires both first and last name.` });
         }
-        rows.push([timestamp, gFirst, gLast, attendance, gMeal, message, groomFlag, brideFlag]);
+        // Do not duplicate the message for guests — only the main submitter's row includes the message
+        rows.push([timestamp, gFirst, gLast, attendance, gMeal, '', groomFlag, brideFlag]);
       }
     }
 
