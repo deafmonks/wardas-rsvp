@@ -67,6 +67,13 @@
         <label for="name">Full Name</label>
         <input id="name" name="name" type="text" required />
 
+        <label for="side">Are you from the groom's side or the bride's side?</label>
+        <select id="side" name="side" required>
+          <option value="">Select...</option>
+          <option value="groom">Groom's side</option>
+          <option value="bride">Bride's side</option>
+        </select>
+
         <label for="attendance">Will you attend?</label>
         <select id="attendance" name="attendance" required>
           <option value="">Select an option</option>
@@ -139,8 +146,8 @@
     }
 
     // ------------ RSVP + GOOGLE SHEETS ------------
-    // Use local proxy running on port 3000 (make sure proxy.js is running)
-    const scriptURL = 'http://localhost:3000/rsvp';
+    // Vercel function URL (deployed)
+    const scriptURL = 'https://wardas-rsvp.vercel.app/api/rsvp';
     const form = document.forms['rsvp-to-google-sheet'];
     const successMessage = document.getElementById('successMessage');
     const errorMessage = document.getElementById('errorMessage');
@@ -230,24 +237,33 @@
         }
       }
 
-      // Send URL-encoded payload so the proxy can parse it easily
+      // Send URL-encoded payload and handle errors with detailed logging
       const payload = new URLSearchParams(new FormData(form));
       fetch(scriptURL, {
         method: 'POST',
         body: payload,
       })
-        .then((response) => {
-          if (response.ok) {
-            successMessage.hidden = false;
-            form.reset();
-            updateAttendingFields();
-            renderGuestFields(0);
-            enforceGuestNamesRequirement();
-          } else {
-            errorMessage.hidden = false;
+        .then(async (res) => {
+          if (!res.ok) {
+            const text = await res.text().catch(() => '');
+            throw new Error(`HTTP ${res.status} ${res.statusText} - ${text}`);
+          }
+          try {
+            return await res.json();
+          } catch (e) {
+            return { status: 'ok' };
           }
         })
-        .catch(() => {
+        .then((data) => {
+          successMessage.hidden = false;
+          form.reset();
+          updateAttendingFields();
+          renderGuestFields(0);
+          enforceGuestNamesRequirement();
+        })
+        .catch((err) => {
+          console.error('Submit error:', err);
+          errorMessage.textContent = err.message || 'Something went wrong. Please try again.';
           errorMessage.hidden = false;
         });
     });
