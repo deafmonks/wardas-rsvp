@@ -28,11 +28,17 @@
     .mini-carousel .slide img { width: 100%; height: 100% !important; object-fit: cover; display: block; }
 
     /* Optional: ensure any specially-targeted image (hands) matches the cover sizing */
-    img.hands-match { width: 100%; height: 100% !important; object-fit: cover; display: block; }
-    /* Middle carousel: show only active slide by default; gap when stacked on mobile */
-    .mini-carousel.middle-carousel .slide { display: block; }
-    .mini-carousel.middle-carousel .slide:not(.active) { display: none; }
-    .mini-carousel.middle-carousel .slide + .slide { margin-top: 8px; }
+     img.hands-match { width: 100%; height: 100% !important; object-fit: cover; display: block; }
+     /* Middle carousel defaults (desktop) */
+     .mini-carousel.middle-carousel .slide { display: block; }
+     .mini-carousel.middle-carousel .slide + .slide { margin-top: 8px; }
+
+     /* HERO MIDDLE: Stack IMG3 above hands and size them like the couple-photos
+       These rules only target the hero area to avoid changing invite-area images */
+     .hero .mini-carousel.middle-carousel { max-width: 280px; width: 100%; box-sizing: border-box; }
+     .hero .mini-carousel.middle-carousel .slides { display: flex; flex-direction: column; }
+     .hero .mini-carousel.middle-carousel .slide { display: block !important; position: relative !important; }
+     .hero .mini-carousel.middle-carousel .slide img { width: 100% !important; height: auto !important; border-radius: 8px !important; object-fit: cover !important; display: block !important; }
 
     /* Small-screen adjustments so carousels fit and the right carousel is visible */
     @media (max-width: 600px) {
