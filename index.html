@@ -11,43 +11,57 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- HERO CAROUSEL -->
-  <section class="hero">
-    <div class="carousel">
-      <div class="slides">
-        <div class="slide active">
-          <img src="bride.JPG" alt="Bride and groom" />
+  <!-- HERO CAROUSEL GRID -->
+  <section class="hero" style="padding:16px;">
+      <div class="carousel-grid" style="display:flex;gap:12px;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;">
+        <!-- four small carousels, each 250px wide -->
+        <!-- removed one mini-carousel to keep three total -->
+
+        <div class="mini-carousel" style="width:250px;">
+          <div class="slides">
+            <div class="slide active"><img src="bride.JPG" alt="Bride and groom" style="width:100%;height:auto;"/></div>
+            <div class="slide"><img src="family.JPG" alt="" style="width:100%;height:auto;"/></div>
+          </div>
+          <button class="carousel-btn prev">&#10094;</button>
+          <button class="carousel-btn next">&#10095;</button>
         </div>
-        <!-- removed empty image slide to avoid 404 -->
-        <div class="slide">
-          <!-- inline SVG placeholder to avoid requesting a missing external file -->
-          <svg width="100%" height="100%" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Family photo placeholder">
-            <rect width="100%" height="100%" fill="#f3f3f3" />
-            <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#bbb" font-family="Arial, Helvetica, sans-serif" font-size="28">Family photo not provided</text>
-          </svg>
+
+        <div class="mini-carousel" style="width:250px;">
+          <div class="slides">
+            <div class="slide active"><img src="bride.JPG" alt="Bride and groom" style="width:100%;height:auto;"/></div>
+            <div class="slide"><img src="family.JPG" alt="" style="width:100%;height:auto;"/></div>
+          </div>
+          <button class="carousel-btn prev">&#10094;</button>
+          <button class="carousel-btn next">&#10095;</button>
+        </div>
+
+        <div class="mini-carousel" style="width:250px;">
+          <div class="slides">
+            <div class="slide active"><img src="bride.JPG" alt="Bride and groom" style="width:100%;height:auto;"/></div>
+            <div class="slide"><img src="family.JPG" alt="" style="width:100%;height:auto;"/></div>
+          </div>
+          <button class="carousel-btn prev">&#10094;</button>
+          <button class="carousel-btn next">&#10095;</button>
         </div>
       </div>
-      <button class="carousel-btn prev">&#10094;</button>
-      <button class="carousel-btn next">&#10095;</button>
-    </div>
-  </section>
+    </section>
 
   <div class="page">
     <!-- INVITATION CARD -->
     <header class="invite-card">
       <div class="top-border"></div>
-      <h2 class="tiny-text">Shaadi ka Nimantran</h2>
-      <h1 class="names">Ayaan &amp; Zoya</h1>
+      <h2 class="tiny-text">words?</h2>
+      <h1 class="names">Warda &amp; Nawal</h1>
       <p class="parents">With the blessings of their families</p>
       <p class="line">joyfully invite you to celebrate their wedding</p>
 
       <div class="details">
         <p class="label">Date</p>
-        <p class="value">Sunday, 23 February 2025</p>
+        <p class="value">Sunday, 7 June 2026</p>
         <p class="label">Time</p>
-        <p class="value">7:00 PM onwards</p>
+        <p class="value">5:30 PM onwards</p>
         <p class="label">Venue</p>
-        <p class="value">Royal Mahal Banquet, Houston, TX</p>
+        <p class="value">10227 County Road 2426, Terrell, TX 75160</p>
       </div>
 
       <p class="note">
@@ -55,6 +69,16 @@
       </p>
       <div class="bottom-border"></div>
     </header>
+
+    <!-- COUPLE PHOTOS -->
+    <section class="couple-photos" aria-label="Couple photos" style="display:flex;gap:16px;justify-content:center;margin:24px 0;">
+      <div style="flex:1;max-width:280px;text-align:center;">
+        <img src="bride.JPG" alt="Bride" style="width:100%;height:auto;border-radius:8px;object-fit:cover;" />
+      </div>
+      <div style="flex:1;max-width:280px;text-align:center;">
+        <img src="groom.jpg" alt="Groom" style="width:100%;height:auto;border-radius:8px;object-fit:cover;" />
+      </div>
+    </section>
 
     <!-- RSVP SECTION -->
     <section class="rsvp-section" id="rsvp">
@@ -64,8 +88,14 @@
       </p>
 
       <form name="rsvp-to-google-sheet" class="rsvp-form">
-        <label for="name">Full Name</label>
-        <input id="name" name="name" type="text" required />
+        <label for="firstName">First Name</label>
+        <input id="firstName" name="firstName" type="text" required />
+
+        <label for="lastName">Last Name</label>
+        <input id="lastName" name="lastName" type="text" required />
+
+        <!-- Hidden concatenated full name for backend compatibility -->
+        <input id="name" name="name" type="hidden" />
 
         <label for="side">Are you from the groom's side or the bride's side?</label>
         <select id="side" name="side" required>
@@ -99,6 +129,7 @@
             <option value="">Select...</option>
             <option value="veg">Veg</option>
             <option value="non-veg">Non‑veg</option>
+            <option value="na">N/A</option>
           </select>
         </div>
 
@@ -117,33 +148,35 @@
   </div>
 
   <script>
-    // ------------ CAROUSEL ------------
-    const slides = document.querySelectorAll('.slide');
-    const prevBtn = document.querySelector('.carousel-btn.prev');
-    const nextBtn = document.querySelector('.carousel-btn.next');
-    let currentSlide = 0;
+    // ------------ CAROUSEL (multiple mini carousels) ------------
+    document.querySelectorAll('.mini-carousel').forEach((carousel) => {
+      const slides = carousel.querySelectorAll('.slide');
+      const prevBtn = carousel.querySelector('.carousel-btn.prev');
+      const nextBtn = carousel.querySelector('.carousel-btn.next');
+      let current = 0;
 
-    function showSlide(index) {
-      slides.forEach((s, i) => {
-        s.classList.toggle('active', i === index);
-      });
-    }
+      function show(i) {
+        slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+      }
 
-    function nextSlide() {
-      currentSlide = (currentSlide + 1) % slides.length;
-      showSlide(currentSlide);
-    }
+      function goNext() {
+        current = (current + 1) % slides.length;
+        show(current);
+      }
 
-    function prevSlide() {
-      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-      showSlide(currentSlide);
-    }
+      function goPrev() {
+        current = (current - 1 + slides.length) % slides.length;
+        show(current);
+      }
 
-    if (slides.length > 0) {
-      nextBtn.addEventListener('click', nextSlide);
-      prevBtn.addEventListener('click', prevSlide);
-      setInterval(nextSlide, 5000);
-    }
+      if (nextBtn) nextBtn.addEventListener('click', goNext);
+      if (prevBtn) prevBtn.addEventListener('click', goPrev);
+
+      if (slides.length > 1) {
+        // auto-advance each mini-carousel
+        setInterval(goNext, 4000 + Math.floor(Math.random() * 2000));
+      }
+    });
 
     // ------------ RSVP + GOOGLE SHEETS ------------
     // Vercel function URL (deployed)
@@ -156,6 +189,9 @@
     const guestsInput = document.getElementById('guests');
     const guestList = document.getElementById('guestList');
     const mealSelect = document.getElementById('meal');
+    const firstNameInput = document.getElementById('firstName');
+    const lastNameInput = document.getElementById('lastName');
+    const fullNameHidden = document.getElementById('name');
 
     function updateAttendingFields() {
       const attending = attendanceSelect.value === 'yes';
@@ -177,14 +213,22 @@
 
         wrapper.innerHTML = `
           <h4>Guest ${i}</h4>
-          <label for="guest_${i}_name">Full Name</label>
-          <input id="guest_${i}_name" name="guest_${i}_name" type="text" required />
+          <label for="guest_${i}_first">First Name</label>
+          <input id="guest_${i}_first" name="guest_${i}_first" type="text" required />
+
+          <label for="guest_${i}_last">Last Name</label>
+          <input id="guest_${i}_last" name="guest_${i}_last" type="text" required />
+
+          <!-- Hidden concatenated full name for backend compatibility -->
+          <input id="guest_${i}_name" name="guest_${i}_name" type="hidden" />
+
           <div class="guest-meal-display"><span id="guest_${i}_meal_display"></span></div>
           <label for="guest_${i}_meal">Meal Preference</label>
           <select id="guest_${i}_meal" name="guest_${i}_meal">
             <option value="">Select...</option>
             <option value="veg">Veg</option>
             <option value="non-veg">Non‑veg</option>
+            <option value="na">N/A</option>
           </select>
         `;
 
@@ -201,11 +245,25 @@
     function enforceGuestNamesRequirement() {
       const guests = parseInt(guestsInput.value || '0', 10);
       for (let i = 1; i <= 10; i++) {
-        const nameInput = document.getElementById(`guest_${i}_name`);
-        if (nameInput) {
-          if (i <= guests) nameInput.setAttribute('required', 'required');
-          else nameInput.removeAttribute('required');
+        const firstInput = document.getElementById(`guest_${i}_first`);
+        const lastInput = document.getElementById(`guest_${i}_last`);
+        if (firstInput) {
+          if (i <= guests) firstInput.setAttribute('required', 'required');
+          else {
+            firstInput.removeAttribute('required');
+            firstInput.value = '';
+          }
         }
+        if (lastInput) {
+          if (i <= guests) lastInput.setAttribute('required', 'required');
+          else {
+            lastInput.removeAttribute('required');
+            lastInput.value = '';
+          }
+        }
+        // clear hidden concatenated name for non-existing guests
+        const hidden = document.getElementById(`guest_${i}_name`);
+        if (hidden && i > guests) hidden.value = '';
       }
     }
 
@@ -225,15 +283,30 @@
       errorMessage.hidden = true;
       errorMessage.textContent = 'Something went wrong. Please try again.';
 
+      // Populate hidden full name for server-side compatibility
+      if (firstNameInput && lastNameInput && fullNameHidden) {
+        const f = (firstNameInput.value || '').trim();
+        const l = (lastNameInput.value || '').trim();
+        fullNameHidden.value = (f || l) ? `${f} ${l}`.trim() : '';
+      }
+
       const guests = parseInt(guestsInput.value || '0', 10);
       if (attendanceSelect.value === 'yes') {
         for (let i = 1; i <= guests; i++) {
-          const nameInput = document.getElementById(`guest_${i}_name`);
-          if (!nameInput || !nameInput.value.trim()) {
-            errorMessage.textContent = `Please enter a name for Guest ${i}.`;
+          const first = document.getElementById(`guest_${i}_first`);
+          const last = document.getElementById(`guest_${i}_last`);
+          const hidden = document.getElementById(`guest_${i}_name`);
+          const firstVal = first ? (first.value || '').trim() : '';
+          const lastVal = last ? (last.value || '').trim() : '';
+
+          if (!firstVal || !lastVal) {
+            errorMessage.textContent = `Please enter first and last name for Guest ${i}.`;
             errorMessage.hidden = false;
             return;
           }
+
+          // populate hidden concatenated name for backend
+          if (hidden) hidden.value = `${firstVal} ${lastVal}`.trim();
         }
       }
 
@@ -260,6 +333,13 @@
           updateAttendingFields();
           renderGuestFields(0);
           enforceGuestNamesRequirement();
+          // ensure hidden name cleared after reset
+          if (fullNameHidden) fullNameHidden.value = '';
+          // clear guest hidden names as well
+          for (let i = 1; i <= 10; i++) {
+            const h = document.getElementById(`guest_${i}_name`);
+            if (h) h.value = '';
+          }
         })
         .catch((err) => {
           console.error('Submit error:', err);

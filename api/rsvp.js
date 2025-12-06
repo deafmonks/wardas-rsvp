@@ -37,19 +37,55 @@ module.exports = async (req, res) => {
     const sheets = google.sheets({ version: 'v4', auth: jwt });
 
     const body = req.body || {};
-    const timestamp = new Date().toISOString();
-    const mainName = (body.name || '').trim();
+    // Timestamp as day/month only (DD/MM)
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const timestamp = `${day}/${month}`;
+
+    const firstName = (body.firstName || '').trim();
+    const lastName = (body.lastName || '').trim();
     const attendance = (body.attendance || '').trim();
     const message = (body.message || '').trim();
     const mainMeal = (body.meal || '').trim();
+    const side = (body.side || '').trim();
 
+    // validate required main fields
+    if (!firstName || !lastName) {
+      return res.status(400).json({ error: 'First name and last name are required.' });
+    }
+    if (!attendance) {
+      return res.status(400).json({ error: 'Confirmation (attendance) is required.' });
+    }
+    if (!side) {
+      return res.status(400).json({ error: 'Please specify whether you are from the groom or bride side (side).' });
+    }
+
+    // Helper: build groom/bride columns
+    function sideFlags(sideValue) {
+      if (!sideValue) return ['', ''];
+      if (String(sideValue).toLowerCase() === 'groom') return ['Yes', ''];
+      if (String(sideValue).toLowerCase() === 'bride') return ['', 'Yes'];
+      return ['', ''];
+    }
+
+    // Build rows in requested order:
+    // Timestamp | First name | Last name | Confirmation | Meal | Message | Groom | Bride
     const rows = [];
-    if (mainName) rows.push([timestamp, mainName, attendance, mainMeal, message]);
+    const [groomFlag, brideFlag] = sideFlags(side);
+    rows.push([timestamp, firstName, lastName, attendance, mainMeal, message, groomFlag, brideFlag]);
+
+    // Guests: look for guest_{i}_first and guest_{i}_last
     for (let i = 1; i <= 10; i++) {
-      const gName = (body[`guest_${i}_name`] || '').trim();
-      if (gName) {
-        const gMeal = (body[`guest_${i}_meal`] || '').trim();
-        rows.push([timestamp, gName, attendance, gMeal, message]);
+      const gFirst = (body[`guest_${i}_first`] || '').trim();
+      const gLast = (body[`guest_${i}_last`] || '').trim();
+      const gMeal = (body[`guest_${i}_meal`] || '').trim();
+      if (gFirst || gLast) {
+        // require both first & last for any provided guest
+        if (!gFirst || !gLast) {
+          return res.status(400).json({ error: `Guest ${i} requires both first and last name.` });
+        }
+        rows.push([timestamp, gFirst, gLast, attendance, gMeal, message, groomFlag, brideFlag]);
       }
     }
 
@@ -57,7 +93,7 @@ module.exports = async (req, res) => {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!A:E`,
+      range: `${SHEET_NAME}!A:H`,
       valueInputOption: 'USER_ENTERED',
       insertDataOption: 'INSERT_ROWS',
       resource: { values: rows },
