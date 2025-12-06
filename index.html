@@ -288,6 +288,37 @@
     window.addEventListener('load', () => { fixMiddleCarouselHeight(); setTimeout(fixMiddleCarouselHeight, 350); });
     window.addEventListener('resize', () => { setTimeout(fixMiddleCarouselHeight, 150); });
 
+    // On desktop, size IMG3+hands so their combined height matches the right carousel
+    function matchMiddleToRightHeight() {
+      const isDesktop = (window.innerWidth || document.documentElement.clientWidth) > 600;
+      if (!isDesktop) {
+        // reset any inline heights on smaller screens
+        const middleSlides = document.querySelector('.mini-carousel.middle-carousel .slides');
+        if (middleSlides) { middleSlides.style.height = ''; const imgs = middleSlides.querySelectorAll('img'); imgs.forEach(i => i.style.height = ''); }
+        return;
+      }
+
+      const rightSlides = document.querySelector('.mini-carousel.right-carousel .slides');
+      const middleSlides = document.querySelector('.mini-carousel.middle-carousel .slides');
+      if (!rightSlides || !middleSlides) return;
+
+      const rightH = rightSlides.offsetHeight || rightSlides.clientHeight || 0;
+      if (!rightH) return setTimeout(matchMiddleToRightHeight, 120);
+
+      // set middle container to match right's height and split evenly between stacked images
+      middleSlides.style.height = `${rightH}px`;
+      const middleImgs = Array.from(middleSlides.querySelectorAll('.slide'));
+      const eachH = Math.floor(rightH / Math.max(1, middleImgs.length));
+      middleImgs.forEach((s) => {
+        s.style.height = `${eachH}px`;
+        const img = s.querySelector('img');
+        if (img) img.style.height = `${eachH}px`;
+      });
+    }
+
+    window.addEventListener('load', () => { matchMiddleToRightHeight(); setTimeout(matchMiddleToRightHeight, 400); });
+    window.addEventListener('resize', () => { setTimeout(matchMiddleToRightHeight, 180); });
+
     // ------------ RSVP + GOOGLE SHEETS ------------
     // Vercel function URL (deployed)
     const scriptURL = 'https://wardas-rsvp.vercel.app/api/rsvp';
