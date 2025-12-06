@@ -10,22 +10,38 @@
 
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* Animate only the right-most mini-carousel */
+    /* Prevent horizontal page scrolling */
+    html, body { overflow-x: hidden; }
+
+    /* Animate only the right-most mini-carousel (fade effect) */
     .mini-carousel.right-carousel { overflow: hidden; }
     .mini-carousel.right-carousel .slides { position: relative; height: auto; }
     .mini-carousel.right-carousel .slide { position: absolute; inset: 0; opacity: 0; transition: opacity .7s ease; }
     .mini-carousel.right-carousel .slide.active { opacity: 1; z-index: 2; }
     .mini-carousel.right-carousel .slide img { width: 100%; height: 100% !important; object-fit: cover; display: block; }
+
+    /* Core carousel sizing: prevent inner scrolling and ensure slides are image-only */
+    .carousel-grid { overflow: hidden; max-width: 100vw; box-sizing: border-box; }
+    .mini-carousel { flex: 0 0 250px; width: 250px; box-sizing: border-box; }
+    .mini-carousel .slides { overflow: hidden; }
+    .mini-carousel .slide img { width: 100%; height: 100% !important; object-fit: cover; display: block; }
+
+    /* Optional: ensure any specially-targeted image (hands) matches the cover sizing */
+    img.hands-match { width: 100%; height: 100% !important; object-fit: cover; display: block; }
+    /* Middle carousel: hide non-active slides and add a small gap between stacked slides */
+    .mini-carousel.middle-carousel .slide { display: block; }
+    .mini-carousel.middle-carousel .slide:not(.active) { display: none; }
+    .mini-carousel.middle-carousel .slide + .slide { margin-top: 8px; }
   </style>
 </head>
 <body>
   <!-- HERO CAROUSEL GRID -->
   <section class="hero" style="padding:16px;">
-      <div class="carousel-grid" style="display:flex;gap:12px;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;">
+      <div class="carousel-grid" style="display:flex;gap:12px;justify-content:flex-start;flex-wrap:nowrap;overflow-x:hidden;">
         <!-- four small carousels, each 250px wide -->
         <!-- removed one mini-carousel to keep three total -->
 
-        <div class="mini-carousel" style="width:250px;">
+        <div class="mini-carousel middle-carousel" style="width:250px;">
           <div class="slides">
             <div class="slide active"><img src="bride.JPG" alt="Bride and groom" style="width:100%;height:auto;"/></div>
           </div>
@@ -33,8 +49,8 @@
 
         <div class="mini-carousel" style="width:250px;">
           <div class="slides">
-            <div class="slide active"><img src="IMG3.jpg" alt="Bride and groom" style="width:100%;height:100%;object-fit:cover;"/></div>
-            <div class="slide"><img src="hands.jpg" alt="Bride and groom" style="width:100%;height:100%;object-fit:cover;"/></div>
+            <div class="slide active"><img src="IMG3.jpg" alt="Bride and groom" style="width:100%;height:100%;object-fit:cover;"/></div><br>
+            <div class="slide"><img class="hands-match" src="hands.jpg" alt="Bride and groom" style="width:100%;height:100%;object-fit:cover;"/></div>
           </div>
         </div>
 
@@ -215,6 +231,21 @@
 
     window.addEventListener('load', () => { syncCarouselHeights(); setTimeout(syncCarouselHeights, 300); });
     window.addEventListener('resize', () => { setTimeout(syncCarouselHeights, 120); });
+
+    // Ensure the middle carousel (IMG3 / hands) uses IMG3's rendered height so hands matches IMG3
+    function fixMiddleCarouselHeight() {
+      const middle = document.querySelector('.mini-carousel.middle-carousel');
+      if (!middle) return;
+      const img = middle.querySelector('.slides .slide.active img') || middle.querySelector('.slides img');
+      const slides = middle.querySelector('.slides');
+      if (!img || !slides) return;
+      const h = img.offsetHeight || img.clientHeight || 0;
+      if (h > 0) slides.style.height = `${h}px`;
+      else setTimeout(fixMiddleCarouselHeight, 150);
+    }
+
+    window.addEventListener('load', () => { fixMiddleCarouselHeight(); setTimeout(fixMiddleCarouselHeight, 350); });
+    window.addEventListener('resize', () => { setTimeout(fixMiddleCarouselHeight, 150); });
 
     // ------------ RSVP + GOOGLE SHEETS ------------
     // Vercel function URL (deployed)
