@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shaadi Invitation & RSVP</title>
+
+  <!-- Google Font: Mukta -->
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@300;500;700&display=swap" rel="stylesheet" /> <!-- [web:57] -->
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- HERO CAROUSEL -->
+  <section class="hero">
+    <div class="carousel">
+      <div class="slides">
+        <div class="slide active">
+          <img src="bride.JPG" alt="Bride and groom" />
+        </div>
+        <!-- removed empty image slide to avoid 404 -->
+        <div class="slide">
+          <!-- inline SVG placeholder to avoid requesting a missing external file -->
+          <svg width="100%" height="100%" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Family photo placeholder">
+            <rect width="100%" height="100%" fill="#f3f3f3" />
+            <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#bbb" font-family="Arial, Helvetica, sans-serif" font-size="28">Family photo not provided</text>
+          </svg>
+        </div>
+      </div>
+      <button class="carousel-btn prev">&#10094;</button>
+      <button class="carousel-btn next">&#10095;</button>
+    </div>
+  </section>
+
+  <div class="page">
+    <!-- INVITATION CARD -->
+    <header class="invite-card">
+      <div class="top-border"></div>
+      <h2 class="tiny-text">Shaadi ka Nimantran</h2>
+      <h1 class="names">Ayaan &amp; Zoya</h1>
+      <p class="parents">With the blessings of their families</p>
+      <p class="line">joyfully invite you to celebrate their wedding</p>
+
+      <div class="details">
+        <p class="label">Date</p>
+        <p class="value">Sunday, 23 February 2025</p>
+        <p class="label">Time</p>
+        <p class="value">7:00 PM onwards</p>
+        <p class="label">Venue</p>
+        <p class="value">Royal Mahal Banquet, Houston, TX</p>
+      </div>
+
+      <p class="note">
+        Dress code: Traditional desi (lehenga, sherwani, kurta, saree)
+      </p>
+      <div class="bottom-border"></div>
+    </header>
+
+    <!-- RSVP SECTION -->
+    <section class="rsvp-section" id="rsvp">
+      <h2>RSVP</h2>
+      <p class="rsvp-text">
+        Please let us know if you will be able to join us.
+      </p>
+
+      <form name="rsvp-to-google-sheet" class="rsvp-form">
+        <label for="name">Full Name</label>
+        <input id="name" name="name" type="text" required />
+
+        <label for="attendance">Will you attend?</label>
+        <select id="attendance" name="attendance" required>
+          <option value="">Select an option</option>
+          <option value="yes">Yes, I will be there</option>
+          <option value="no">Sorry, I cannot attend</option>
+        </select>
+
+        <div id="attendingFields">
+          <label for="guests">Number of Guests (excluding you)</label>
+          <input
+            id="guests"
+            name="guests"
+            type="number"
+            min="0"
+            max="10"
+            value="0"
+          />
+
+          <div id="guestList" aria-live="polite"></div>
+
+          <label for="meal">Your Meal Preference</label>
+          <select id="meal" name="meal">
+            <option value="">Select...</option>
+            <option value="veg">Veg</option>
+            <option value="non-veg">Non‑veg</option>
+          </select>
+        </div>
+
+        <label for="message">Message for the couple</label>
+        <textarea id="message" name="message" rows="3"></textarea>
+
+        <button type="submit">Submit RSVP</button>
+        <p class="success-message" id="successMessage" hidden>
+          Shukriya! Your RSVP has been received.
+        </p>
+        <p class="error-message" id="errorMessage" hidden>
+          Something went wrong. Please try again.
+        </p>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    // ------------ CAROUSEL ------------
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.querySelector('.carousel-btn.prev');
+    const nextBtn = document.querySelector('.carousel-btn.next');
+    let currentSlide = 0;
+
+    function showSlide(index) {
+      slides.forEach((s, i) => {
+        s.classList.toggle('active', i === index);
+      });
+    }
+
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % slides.length;
+      showSlide(currentSlide);
+    }
+
+    function prevSlide() {
+      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+      showSlide(currentSlide);
+    }
+
+    if (slides.length > 0) {
+      nextBtn.addEventListener('click', nextSlide);
+      prevBtn.addEventListener('click', prevSlide);
+      setInterval(nextSlide, 5000);
+    }
+
+    // ------------ RSVP + GOOGLE SHEETS ------------
+    // Use local proxy running on port 3000 (make sure proxy.js is running)
+    const scriptURL = 'http://localhost:3000/rsvp';
+    const form = document.forms['rsvp-to-google-sheet'];
+    const successMessage = document.getElementById('successMessage');
+    const errorMessage = document.getElementById('errorMessage');
+    const attendanceSelect = document.getElementById('attendance');
+    const attendingFields = document.getElementById('attendingFields');
+    const guestsInput = document.getElementById('guests');
+    const guestList = document.getElementById('guestList');
+    const mealSelect = document.getElementById('meal');
+
+    function updateAttendingFields() {
+      const attending = attendanceSelect.value === 'yes';
+      attendingFields.style.display = attending ? 'block' : 'none';
+
+      if (!attending) {
+        guestsInput.value = 0;
+        renderGuestFields(0);
+      }
+    }
+
+    function renderGuestFields(count) {
+      guestList.innerHTML = '';
+      count = Math.max(0, Math.min(10, parseInt(count || 0, 10)));
+
+      for (let i = 1; i <= count; i++) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'guest-card';
+
+        wrapper.innerHTML = `
+          <h4>Guest ${i}</h4>
+          <label for="guest_${i}_name">Full Name</label>
+          <input id="guest_${i}_name" name="guest_${i}_name" type="text" required />
+          <div class="guest-meal-display"><span id="guest_${i}_meal_display"></span></div>
+          <label for="guest_${i}_meal">Meal Preference</label>
+          <select id="guest_${i}_meal" name="guest_${i}_meal">
+            <option value="">Select...</option>
+            <option value="veg">Veg</option>
+            <option value="non-veg">Non‑veg</option>
+          </select>
+        `;
+
+        guestList.appendChild(wrapper);
+
+        const mealSel = wrapper.querySelector(`#guest_${i}_meal`);
+        const mealDisp = wrapper.querySelector(`#guest_${i}_meal_display`);
+        mealSel.addEventListener('change', () => {
+          mealDisp.textContent = mealSel.value || '';
+        });
+      }
+    }
+
+    function enforceGuestNamesRequirement() {
+      const guests = parseInt(guestsInput.value || '0', 10);
+      for (let i = 1; i <= 10; i++) {
+        const nameInput = document.getElementById(`guest_${i}_name`);
+        if (nameInput) {
+          if (i <= guests) nameInput.setAttribute('required', 'required');
+          else nameInput.removeAttribute('required');
+        }
+      }
+    }
+
+    attendanceSelect.addEventListener('change', updateAttendingFields);
+    guestsInput.addEventListener('input', () => {
+      renderGuestFields(guestsInput.value);
+      enforceGuestNamesRequirement();
+    });
+
+    updateAttendingFields();
+    renderGuestFields(guestsInput.value);
+    enforceGuestNamesRequirement();
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      successMessage.hidden = true;
+      errorMessage.hidden = true;
+      errorMessage.textContent = 'Something went wrong. Please try again.';
+
+      const guests = parseInt(guestsInput.value || '0', 10);
+      if (attendanceSelect.value === 'yes') {
+        for (let i = 1; i <= guests; i++) {
+          const nameInput = document.getElementById(`guest_${i}_name`);
+          if (!nameInput || !nameInput.value.trim()) {
+            errorMessage.textContent = `Please enter a name for Guest ${i}.`;
+            errorMessage.hidden = false;
+            return;
+          }
+        }
+      }
+
+      // Send URL-encoded payload so the proxy can parse it easily
+      const payload = new URLSearchParams(new FormData(form));
+      fetch(scriptURL, {
+        method: 'POST',
+        body: payload,
+      })
+        .then((response) => {
+          if (response.ok) {
+            successMessage.hidden = false;
+            form.reset();
+            updateAttendingFields();
+            renderGuestFields(0);
+            enforceGuestNamesRequirement();
+          } else {
+            errorMessage.hidden = false;
+          }
+        })
+        .catch(() => {
+          errorMessage.hidden = false;
+        });
+    });
+  </script>
+</body>
+</html>
