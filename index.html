@@ -59,11 +59,13 @@
       .mini-carousel { flex: 1 1 45%; width: 45%; max-width: 45%; }
       .mini-carousel.right-carousel { order: 2; }
       .mini-carousel.middle-carousel { order: 1; }
-      /* On narrow screens make the middle carousel behave like the couple-photos:
-         stacked, centered, limited to the same max-width so IMG3 and hands
-         appear like separate photo blocks rather than side-by-side thumbnails. */
-      .hero .carousel-grid { flex-direction: column; align-items: center; }
-      .hero .mini-carousel.middle-carousel { width: 100% !important; max-width: 280px !important; margin: 0 auto !important; }
+      /* On narrow screens format the top area like the `couple-photos` but
+        as two columns: left column shows IMG3 above hands (stacked); right
+        column shows the hero right-carousel active image. Both columns use
+        the same max-width so they match the couple photo sizing. */
+      .hero .carousel-grid { flex-direction: row; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+      .hero .mini-carousel.middle-carousel,
+      .hero .mini-carousel.right-carousel { width: 48% !important; max-width: 280px !important; box-sizing: border-box; }
       .hero .mini-carousel.middle-carousel .slides { display: block !important; }
       .hero .mini-carousel.middle-carousel .slide { display: block !important; position: static !important; width: 100% !important; margin: 8px 0 !important; }
       /* hide the leftmost (bride) carousel on mobile */
