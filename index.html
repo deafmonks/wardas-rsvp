@@ -22,7 +22,8 @@
 
     /* Core carousel sizing: prevent inner scrolling and ensure slides are image-only */
     .carousel-grid { overflow: hidden; max-width: 100vw; box-sizing: border-box; }
-    .mini-carousel { flex: 0 0 250px; width: 250px; box-sizing: border-box; }
+    /* Make carousels responsive: allow them to scale and remain visible on small screens */
+    .mini-carousel { flex: 1 1 250px; width: 250px; max-width: 33%; min-width: 140px; box-sizing: border-box; }
     .mini-carousel .slides { overflow: hidden; }
     .mini-carousel .slide img { width: 100%; height: 100% !important; object-fit: cover; display: block; }
 
@@ -32,12 +33,21 @@
     .mini-carousel.middle-carousel .slide { display: block; }
     .mini-carousel.middle-carousel .slide:not(.active) { display: none; }
     .mini-carousel.middle-carousel .slide + .slide { margin-top: 8px; }
+
+    /* Small-screen adjustments so carousels fit and the right carousel is visible */
+    @media (max-width: 600px) {
+      .carousel-grid { gap: 8px; }
+      .mini-carousel { flex: 1 1 45%; width: 45%; max-width: 45%; }
+      .mini-carousel.right-carousel { order: 3; }
+      .mini-carousel.middle-carousel { order: 2; }
+      .mini-carousel:first-of-type { order: 1; }
+    }
   </style>
 </head>
 <body>
   <!-- HERO CAROUSEL GRID -->
   <section class="hero" style="padding:16px;">
-      <div class="carousel-grid" style="display:flex;gap:12px;justify-content:flex-start;flex-wrap:nowrap;overflow-x:hidden;">
+      <div class="carousel-grid" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;overflow-x:hidden;width:100%;max-width:100%;box-sizing:border-box;">
         <!-- four small carousels, each 250px wide -->
         <!-- removed one mini-carousel to keep three total -->
 
