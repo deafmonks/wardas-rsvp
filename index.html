@@ -51,9 +51,12 @@
       .mini-carousel.middle-carousel .slide img { height: 100% !important; width: 100% !important; object-fit: cover; display:block; border-radius:8px; }
 
       /* Right carousel fills the right column and its slides scale to match total height */
-      .mini-carousel.right-carousel .slides { display:flex; flex-direction:column; height: 100% !important; }
-      .mini-carousel.right-carousel .slide { flex: 1 1 auto; display:block !important; margin:0 0 8px 0; }
+      .mini-carousel.right-carousel .slides { display:flex; flex-direction:column; height: 100% !important; position: static !important; }
+      .mini-carousel.right-carousel .slide { position: static !important; flex: 1 1 auto; display:block !important; margin:0 0 8px 0; opacity: 1 !important; }
       .mini-carousel.right-carousel .slide img { height: 100% !important; width: 100% !important; object-fit: cover; display:block; border-radius:8px; }
+
+      /* Ensure absolute-positioned rules from desktop are disabled on mobile so slides stack properly */
+      .mini-carousel.right-carousel .slide.active { z-index: auto !important; }
 
       /* ensure non-active middle slides are visible on mobile (stacked) */
       .mini-carousel.middle-carousel .slide:not(.active) { display: block !important; }
@@ -64,6 +67,10 @@
       .mini-carousel.right-carousel { width: auto !important; max-width: none !important; min-width: 0 !important; }
       /* allow right carousel contents to be visible and scale to the available height */
       .mini-carousel.right-carousel { overflow: visible !important; }
+
+      /* In case the desktop CSS set slides to absolute, reset slide positioning for all carousels on mobile */
+      .mini-carousel .slides { position: static !important; }
+      .mini-carousel .slide { position: static !important; }
     }
     /* default desktop visibility rules for left image (keep bride visible) */
     .desktop-only { display: block; }
