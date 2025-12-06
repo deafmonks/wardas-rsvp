@@ -9,6 +9,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@300;500;700&display=swap" rel="stylesheet" /> <!-- [web:57] -->
 
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Animate only the right-most mini-carousel */
+    .mini-carousel.right-carousel { overflow: hidden; }
+    .mini-carousel.right-carousel .slides { position: relative; height: auto; }
+    .mini-carousel.right-carousel .slide { position: absolute; inset: 0; opacity: 0; transition: opacity .7s ease; }
+    .mini-carousel.right-carousel .slide.active { opacity: 1; z-index: 2; }
+    .mini-carousel.right-carousel .slide img { width: 100%; height: 100% !important; object-fit: cover; display: block; }
+  </style>
 </head>
 <body>
   <!-- HERO CAROUSEL GRID -->
@@ -20,29 +28,25 @@
         <div class="mini-carousel" style="width:250px;">
           <div class="slides">
             <div class="slide active"><img src="bride.JPG" alt="Bride and groom" style="width:100%;height:auto;"/></div>
-            <div class="slide"><img src="family.JPG" alt="" style="width:100%;height:auto;"/></div>
           </div>
-          <button class="carousel-btn prev">&#10094;</button>
-          <button class="carousel-btn next">&#10095;</button>
         </div>
 
         <div class="mini-carousel" style="width:250px;">
           <div class="slides">
-            <div class="slide active"><img src="bride.JPG" alt="Bride and groom" style="width:100%;height:auto;"/></div>
-            <div class="slide"><img src="family.JPG" alt="" style="width:100%;height:auto;"/></div>
+            <div class="slide active"><img src="IMG3.jpg" alt="Bride and groom" style="width:100%;height:100%;object-fit:cover;"/></div>
+            <div class="slide"><img src="hands.jpg" alt="Bride and groom" style="width:100%;height:100%;object-fit:cover;"/></div>
           </div>
-          <button class="carousel-btn prev">&#10094;</button>
-          <button class="carousel-btn next">&#10095;</button>
         </div>
 
-        <div class="mini-carousel" style="width:250px;">
+        <div class="mini-carousel right-carousel" style="width:250px;">
           <div class="slides">
-            <div class="slide active"><img src="bride.JPG" alt="Bride and groom" style="width:100%;height:auto;"/></div>
-            <div class="slide"><img src="family.JPG" alt="" style="width:100%;height:auto;"/></div>
+            <div class="slide active"><img src="saad1.jpg" alt="saad" style="width:100%;height:auto;"/></div>
+            <div class="slide"><img src="warda1.jpg" alt="warda" style="width:100%;height:auto;"/></div>
+            <div class="slide"><img src="4ofthem.jpg" alt="group" style="width:100%;height:auto;"/></div>
           </div>
-          <button class="carousel-btn prev">&#10094;</button>
-          <button class="carousel-btn next">&#10095;</button>
         </div>
+
+        
       </div>
     </section>
 
@@ -65,7 +69,9 @@
       </div>
 
       <p class="note">
-        Dress code: Traditional desi (lehenga, sherwani, kurta, saree)
+        Dress code: 
+        <br>Woman- Desi Festive Formal<br/>
+        Men- Formal Dress
       </p>
       <div class="bottom-border"></div>
     </header>
@@ -177,6 +183,38 @@
         setInterval(goNext, 4000 + Math.floor(Math.random() * 2000));
       }
     });
+
+    // Sync all mini-carousel heights to the tallest rendered slide image so visuals match
+    function syncCarouselHeights() {
+      const carousels = Array.from(document.querySelectorAll('.mini-carousel'));
+      if (carousels.length === 0) return;
+
+      // Find the tallest rendered image height among the first slide img of each carousel
+      let maxH = 0;
+      carousels.forEach((c) => {
+        const img = c.querySelector('.slide img');
+        if (img) {
+          // offsetHeight is the rendered height
+          const h = img.offsetHeight || img.clientHeight || 0;
+          if (h > maxH) maxH = h;
+        }
+      });
+
+      // If no images measured yet, try again shortly (images may still be loading)
+      if (maxH === 0) {
+        setTimeout(syncCarouselHeights, 150);
+        return;
+      }
+
+      // Apply the max height to every carousel's slides container
+      carousels.forEach((c) => {
+        const slides = c.querySelector('.slides');
+        if (slides) slides.style.height = `${maxH}px`;
+      });
+    }
+
+    window.addEventListener('load', () => { syncCarouselHeights(); setTimeout(syncCarouselHeights, 300); });
+    window.addEventListener('resize', () => { setTimeout(syncCarouselHeights, 120); });
 
     // ------------ RSVP + GOOGLE SHEETS ------------
     // Vercel function URL (deployed)
