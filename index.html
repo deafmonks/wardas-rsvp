@@ -28,7 +28,7 @@
     .mini-carousel .slide img { width: 100%; height: 100% !important; object-fit: cover; display: block; }
 
     /* Optional: ensure any specially-targeted image (hands) matches the cover sizing */
-     img.hands-match { width: 100%; height: 100% !important; object-fit: cover; display: block; border-radius: 8px !important; }
+    img.hands-match { width: 100%; height: 100% !important; object-fit: cover; display: block; border-radius: 8px !important; transform: translateY(-6%); transition: transform .25s ease; }
      /* Middle carousel defaults (desktop) */
      .mini-carousel.middle-carousel .slide { display: block; }
      .mini-carousel.middle-carousel .slide + .slide { margin-top: 8px; }
@@ -65,6 +65,9 @@
       .mini-carousel.middle-carousel .slides { display: flex; flex-direction: column; }
       .mini-carousel.middle-carousel .slide { position: static !important; opacity: 1 !important; display: block !important; }
       /* ensure only the right carousel auto-animates on mobile */
+
+      /* Remove the upward nudge on very small screens so the stacked layout remains natural */
+      .hero .mini-carousel.middle-carousel .slide img.hands-match { transform: none !important; }
     }
     /* default desktop visibility rules for left image (keep bride visible) */
     .desktop-only { display: block; }
