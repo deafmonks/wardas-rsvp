@@ -70,7 +70,7 @@
     .mobile-only { display: none; }
     /* Top collage marquee (collage-style horizontal scroll) */
     .top-collage { overflow: hidden; padding: 12px 0; background: transparent; }
-    .collage-track { display: flex; gap: 12px; align-items: center; will-change: transform; }
+    .collage-track { display: flex; gap: 12px; align-items: center; will-change: transform; backface-visibility: hidden; transform: translateZ(0); }
     .collage-item { flex: 0 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
     .collage-item img { display:block; width:100%; height:100%; object-fit:cover; }
 
@@ -81,18 +81,17 @@
 
     /* scrolling animation (duplicate content needed for seamless loop) */
     @keyframes collage-scroll {
-      from { transform: translateX(0); }
-      to { transform: translateX(-50%); }
+      from { transform: translate3d(0,0,0); }
+      to { transform: translate3d(-50%,0,0); }
     }
-    .collage-track.scrolling { animation: collage-scroll 28s linear infinite; }
-    .top-collage:hover .collage-track.scrolling { animation-play-state: paused; }
+    .collage-track.scrolling { animation: collage-scroll 16s linear infinite; animation-timing-function: linear; }
 
     /* Responsive: smaller images and shorter animation on small screens */
     @media (max-width: 600px) {
       .collage-item.size-s { width: 110px; }
       .collage-item.size-m { width: 150px; }
       .collage-item.size-l { width: 200px; }
-      .collage-track.scrolling { animation-duration: 18s; }
+      .collage-track.scrolling { animation-duration: 12s; }
     }
   </style>
 </head>
