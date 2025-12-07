@@ -118,8 +118,13 @@
       const track = document.getElementById('collageTrack');
       if (!track) return;
 
-      // speed in pixels per second (adjustable)
-      let speed = 140; // faster feel
+      // marquee speed in pixels per second (adjustable)
+      function getMarqueeSpeed(){
+        // faster on mobile (<=600px) to match request
+        const isMobile = (window.innerWidth || document.documentElement.clientWidth) <= 600;
+        return isMobile ? 260 : 140;
+      }
+      let speed = getMarqueeSpeed(); // initial speed
       let offset = 0;
       let lastTime = null;
       let rafId = null;
@@ -146,6 +151,8 @@
       function start(){
         cancelAnimationFrame(rafId);
         updateSizes();
+        // update speed on each start (handles resize and orientation change)
+        speed = getMarqueeSpeed();
         lastTime = null;
         rafId = requestAnimationFrame(step);
       }
