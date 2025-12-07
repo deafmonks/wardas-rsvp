@@ -72,7 +72,10 @@
     .top-collage { overflow: hidden; padding: 12px 0; background: transparent; }
     .collage-track { display: flex; gap: 12px; align-items: center; will-change: transform; backface-visibility: hidden; transform: translateZ(0); }
     .collage-item { flex: 0 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
-    .collage-item img { display:block; width:100%; height:100%; object-fit:cover; }
+    .collage-item img { display:block; width:100%; height:100%; object-fit:cover; border-radius:8px !important; }
+
+    /* Make every image on the site render with rounded corners */
+    img { border-radius: 8px !important; }
 
     /* Vary widths for a collage look */
     .collage-item.size-s { width: 140px; }
@@ -101,6 +104,8 @@
       <figure class="collage-item size-m"><img src="IMG3.jpg" alt="couple"/></figure>
       
       <figure class="collage-item size-s"><img src="wardac.jpg" alt="warda"/></figure>
+      <figure class="collage-item size-s"><img src="ring.jpg" alt="ring"/></figure>
+      <figure class="collage-item size-s"><img src="mehndi.jpg" alt="mehndi"/></figure>
       
       <!-- duplicate sequence for seamless scroll -->
       <figure class="collage-item size-m"><img src="hands.jpg" alt="hands"/></figure>
@@ -108,6 +113,8 @@
       <figure class="collage-item size-m"><img src="IMG3.jpg" alt="couple"/></figure>
       
       <figure class="collage-item size-s"><img src="wardac.jpg" alt="warda"/></figure>
+      <figure class="collage-item size-s"><img src="ring.jpg" alt="ring"/></figure>
+      <figure class="collage-item size-s"><img src="mehndi.jpg" alt="mehndi"/></figure>
       
     </div>
   </section>
