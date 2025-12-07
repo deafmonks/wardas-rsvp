@@ -68,10 +68,54 @@
     /* default desktop visibility rules for left image (keep bride visible) */
     .desktop-only { display: block; }
     .mobile-only { display: none; }
+    /* Top collage marquee (collage-style horizontal scroll) */
+    .top-collage { overflow: hidden; padding: 12px 0; background: transparent; }
+    .collage-track { display: flex; gap: 12px; align-items: center; will-change: transform; }
+    .collage-item { flex: 0 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+    .collage-item img { display:block; width:100%; height:100%; object-fit:cover; }
+
+    /* Vary widths for a collage look */
+    .collage-item.size-s { width: 140px; }
+    .collage-item.size-m { width: 200px; }
+    .collage-item.size-l { width: 260px; }
+
+    /* scrolling animation (duplicate content needed for seamless loop) */
+    @keyframes collage-scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .collage-track.scrolling { animation: collage-scroll 28s linear infinite; }
+    .top-collage:hover .collage-track.scrolling { animation-play-state: paused; }
+
+    /* Responsive: smaller images and shorter animation on small screens */
+    @media (max-width: 600px) {
+      .collage-item.size-s { width: 110px; }
+      .collage-item.size-m { width: 150px; }
+      .collage-item.size-l { width: 200px; }
+      .collage-track.scrolling { animation-duration: 18s; }
+    }
   </style>
 </head>
 <body>
-  <!-- (Hero carousel removed) -->
+  <!-- Top collage marquee -->
+  <section class="top-collage" aria-hidden="false">
+    <div class="collage-track scrolling" id="collageTrack">
+      <!-- first pass of images -->
+      <figure class="collage-item size-m"><img src="hands.jpg" alt="hands"/></figure>
+      <figure class="collage-item size-l"><img src="4ofthem.jpg" alt="group"/></figure>
+      <figure class="collage-item size-m"><img src="IMG3.jpg" alt="couple"/></figure>
+      <figure class="collage-item size-s"><img src="saad1.jpg" alt="saad"/></figure>
+      <figure class="collage-item size-s"><img src="warda.jpg" alt="warda"/></figure>
+      <figure class="collage-item size-m"><img src="warda1.jpg" alt="warda1"/></figure>
+      <!-- duplicate sequence for seamless scroll -->
+      <figure class="collage-item size-m"><img src="hands.jpg" alt="hands"/></figure>
+      <figure class="collage-item size-l"><img src="4ofthem.jpg" alt="group"/></figure>
+      <figure class="collage-item size-m"><img src="IMG3.jpg" alt="couple"/></figure>
+      <figure class="collage-item size-s"><img src="saad1.jpg" alt="saad"/></figure>
+      <figure class="collage-item size-s"><img src="warda.jpg" alt="warda"/></figure>
+      <figure class="collage-item size-m"><img src="warda1.jpg" alt="warda1"/></figure>
+    </div>
+  </section>
 
   <div class="page">
     <!-- INVITATION CARD -->
