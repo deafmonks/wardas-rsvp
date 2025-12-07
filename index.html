@@ -80,18 +80,14 @@
     .collage-item.size-l { width: 260px; }
 
     /* scrolling animation (duplicate content needed for seamless loop) */
-    @keyframes collage-scroll {
-      from { transform: translate3d(0,0,0); }
-      to { transform: translate3d(-50%,0,0); }
-    }
-    .collage-track.scrolling { animation: collage-scroll 10s linear infinite; animation-timing-function: linear; }
+    /* We'll use JS-driven transform for a perfectly continuous marquee (no CSS loop jump) */
+    .collage-track.scrolling { animation: none; }
 
     /* Responsive: smaller images and shorter animation on small screens */
     @media (max-width: 600px) {
       .collage-item.size-s { width: 110px; }
       .collage-item.size-m { width: 150px; }
       .collage-item.size-l { width: 200px; }
-      .collage-track.scrolling { animation-duration: 6s; }
     }
   </style>
 </head>
@@ -115,6 +111,49 @@
       <figure class="collage-item size-m"><img src="warda1.jpg" alt="warda1"/></figure>
     </div>
   </section>
+
+  <script>
+    // JS-driven continuous marquee to avoid visible jump at loop point.
+    (function(){
+      const track = document.getElementById('collageTrack');
+      if (!track) return;
+
+      // speed in pixels per second (adjustable)
+      let speed = 140; // faster feel
+      let offset = 0;
+      let lastTime = null;
+      let rafId = null;
+
+      function updateSizes(){
+        // total scrollable width (both sequences); assume the HTML duplicates the sequence
+        const total = track.scrollWidth;
+        track._seqWidth = total / 2 || total;
+      }
+
+      function step(ts){
+        if (!lastTime) lastTime = ts;
+        const dt = (ts - lastTime) / 1000;
+        lastTime = ts;
+        offset += speed * dt;
+        if (track._seqWidth) {
+          // wrap offset smoothly using modulo of single sequence width
+          offset = offset % track._seqWidth;
+          track.style.transform = `translate3d(${-offset}px,0,0)`;
+        }
+        rafId = requestAnimationFrame(step);
+      }
+
+      function start(){
+        cancelAnimationFrame(rafId);
+        updateSizes();
+        lastTime = null;
+        rafId = requestAnimationFrame(step);
+      }
+
+      window.addEventListener('load', start);
+      window.addEventListener('resize', start);
+    })();
+  </script>
 
   <div class="page">
     <!-- INVITATION CARD -->
