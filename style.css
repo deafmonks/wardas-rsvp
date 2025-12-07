@@ -15,8 +15,14 @@
 body {
   margin: 0;
   font-family: "Mukta", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: radial-gradient(circle at top, #fbe3d4, #f3d5c4);
+  /* overall page background: maroon shade per request */
+  background: linear-gradient(135deg, #7b1b25 0%, #4b0f15 100%);
   color: var(--text-dark);
+}
+
+/* Use a readable cursive for headings and names */
+h1, h2, h3, .names, .tiny-text, .rsvp-section h2 {
+  font-family: 'Dancing Script', Mukta, cursive;
 }
 
 /* HERO CAROUSEL */
@@ -153,16 +159,19 @@ body {
   font-weight: 700;
   color: var(--maroon);
   margin: 6px 0;
+  font-family: 'Great Vibes', 'Dancing Script', Mukta, cursive;
 }
 
 .parents {
   font-size: 0.95rem;
   margin: 0;
+  color: var(--text-dark);
 }
 
 .line {
   font-size: 0.95rem;
   margin: 4px 0 10px;
+  color: var(--text-dark);
 }
 
 .details {
@@ -184,6 +193,7 @@ body {
 .details .value {
   font-size: 1rem;
   margin: 0 0 6px;
+  color: var(--text-dark);
 }
 
 .note {
@@ -209,13 +219,16 @@ body {
   color: var(--maroon-dark);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  font-size: 1rem;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .rsvp-text {
   text-align: center;
   font-size: 0.95rem;
   margin-bottom: 14px;
+  color: var(--text-dark);
 }
 
 .rsvp-form {
@@ -227,6 +240,7 @@ body {
 .rsvp-form label {
   font-size: 0.85rem;
   font-weight: 500;
+  color: var(--text-dark);
 }
 
 .rsvp-form input,
@@ -239,6 +253,7 @@ body {
   font-size: 0.9rem;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
+  color: var(--text-dark);
 }
 
 .rsvp-form input:focus,
@@ -307,5 +322,10 @@ body {
 
   .names {
     font-size: 1.8rem;
+  }
+
+  /* slightly smaller RSVP headline on mobile */
+  .rsvp-section h2 {
+    font-size: 1.6rem;
   }
 }
