@@ -137,20 +137,37 @@
       let rafId = null;
 
       function updateSizes(){
-        // total scrollable width (both sequences); assume the HTML duplicates the sequence
+        // Compute the width of a single sequence more robustly (handle gaps/rounding)
         const total = track.scrollWidth;
-        track._seqWidth = total / 2 || total;
+        const children = Array.from(track.children);
+        // try to read gap between items (fallback to 12 if not set)
+        const trackStyle = window.getComputedStyle(track);
+        const gap = parseFloat(trackStyle.gap) || 12;
+
+        let acc = 0;
+        let seqWidth = 0;
+        for (let i = 0; i < children.length; i++) {
+          const el = children[i];
+          const w = el.offsetWidth + gap; // include gap for pacing
+          acc += w;
+          // stop once we've accumulated approximately half the total width
+          if (acc >= total / 2) { seqWidth = acc; break; }
+        }
+        track._seqWidth = seqWidth || Math.floor(total / 2) || total;
       }
 
       function step(ts){
         if (!lastTime) lastTime = ts;
-        const dt = (ts - lastTime) / 1000;
+        // cap delta to avoid large teleport jumps (e.g., when coming back from background)
+        const maxDt = 0.05; // 50ms
+        let dt = (ts - lastTime) / 1000;
+        if (dt > maxDt) dt = maxDt;
         lastTime = ts;
         offset += speed * dt;
         if (track._seqWidth) {
-          // wrap offset smoothly using modulo of single sequence width
-          offset = offset % track._seqWidth;
-          track.style.transform = `translate3d(${-offset}px,0,0)`;
+          // subtract sequence width in a loop to wrap smoothly (avoids large modulo jumps)
+          while (offset >= track._seqWidth) offset -= track._seqWidth;
+          track.style.transform = `translate3d(${-Math.round(offset)}px,0,0)`;
         }
         rafId = requestAnimationFrame(step);
       }
