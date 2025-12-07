@@ -104,6 +104,7 @@
       <figure class="collage-item size-m"><img src="IMG3.jpg" alt="couple"/></figure>
       
       <figure class="collage-item size-s"><img src="wardac.jpg" alt="warda"/></figure>
+      <figure class="collage-item size-s"><img src="nawal.jpg" alt="nawal"/></figure>
       <figure class="collage-item size-s"><img src="ring.jpg" alt="ring"/></figure>
       <figure class="collage-item size-s"><img src="mehndi.jpg" alt="mehndi"/></figure>
       
@@ -113,6 +114,7 @@
       <figure class="collage-item size-m"><img src="IMG3.jpg" alt="couple"/></figure>
       
       <figure class="collage-item size-s"><img src="wardac.jpg" alt="warda"/></figure>
+      <figure class="collage-item size-s"><img src="nawal.jpg" alt="nawal"/></figure>
       <figure class="collage-item size-s"><img src="ring.jpg" alt="ring"/></figure>
       <figure class="collage-item size-s"><img src="mehndi.jpg" alt="mehndi"/></figure>
       
@@ -127,9 +129,9 @@
 
       // marquee speed in pixels per second (adjustable)
       function getMarqueeSpeed(){
-        // slightly slower on mobile per request
+        // slow the loop a little: desktop slower and mobile slightly slower
         const isMobile = (window.innerWidth || document.documentElement.clientWidth) <= 600;
-        return isMobile ? 180 : 140;
+        return isMobile ? 140 : 110;
       }
       let speed = getMarqueeSpeed(); // initial speed
       let offset = 0;
